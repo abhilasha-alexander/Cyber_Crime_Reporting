@@ -1,0 +1,30 @@
+import pandas as pd
+
+# Load the dataset
+df = pd.read_csv('cybercrimes.csv')  # Update this with your actual file path
+
+# Convert Year to string if it's not already (just for consistency)
+df['Year'] = df['Year'].astype(str)
+
+# Pivot the table to have years as columns
+pivot_df = df.pivot_table(index=['State', 'Category'], 
+                          columns='Year', 
+                          values='CrimeCount', 
+                          aggfunc='sum').reset_index()
+
+# Optional: sort columns (ensure 2016, 2017, 2018 are ordered correctly)
+pivot_df = pivot_df[['State', 'Category', '2016', '2017', '2018']]
+
+# Calculate year-on-year increases
+pivot_df['2017_vs_2016'] = pivot_df['2017'] - pivot_df['2016']
+pivot_df['2018_vs_2017'] = pivot_df['2018'] - pivot_df['2017']
+
+# Optional: percentage increases
+pivot_df['%_increase_2017_vs_2016'] = ((pivot_df['2017'] - pivot_df['2016']) / pivot_df['2016']) * 100
+pivot_df['%_increase_2018_vs_2017'] = ((pivot_df['2018'] - pivot_df['2017']) / pivot_df['2017']) * 100
+
+# Save the result
+pivot_df.to_csv('cybercrimes_yoy_increase_by_state_category.csv', index=False)
+
+# Display result
+print(pivot_df.head())
